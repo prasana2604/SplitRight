@@ -67,7 +67,14 @@ public class AppDbContext : DbContext
         .HasForeignKey(e => e.CreatedByUserId)
         .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Expense>()
+        .Property(a => a.Amount)
+        .HasColumnType("decimal(18,2)");
+
+        modelBuilder.Entity<ExpenseSplit>()
+        .Property(a => a.Amount)
+        .HasColumnType("decimal(18,2");
 
 
-}
+    }
 }
