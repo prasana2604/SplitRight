@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using SplitRight.API.Data;
 using SplitRight.API.Services;
+using SplitRightApi.cs.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IGroupService, GroupService>();
 
 var app = builder.Build();
 
