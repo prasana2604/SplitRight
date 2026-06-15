@@ -36,6 +36,9 @@ namespace SplitRightApi.cs.Migrations
                     b.Property<string>("Category")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -65,10 +68,10 @@ namespace SplitRightApi.cs.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ExpenseId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int>("ExpenseId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsPaid")
@@ -180,7 +183,7 @@ namespace SplitRightApi.cs.Migrations
                     b.HasOne("SplitRight.API.Models.Entities.User", "PaidBy")
                         .WithMany("Expenses")
                         .HasForeignKey("PaidByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Group");
@@ -199,7 +202,7 @@ namespace SplitRightApi.cs.Migrations
                     b.HasOne("SplitRight.API.Models.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Expense");
@@ -212,7 +215,7 @@ namespace SplitRightApi.cs.Migrations
                     b.HasOne("SplitRight.API.Models.Entities.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("SplitRight.API.Models.Entities.User", null)
@@ -233,7 +236,7 @@ namespace SplitRightApi.cs.Migrations
                     b.HasOne("SplitRight.API.Models.Entities.User", "User")
                         .WithMany("GroupMembers")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Group");

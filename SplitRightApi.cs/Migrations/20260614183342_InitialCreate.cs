@@ -46,8 +46,7 @@ namespace SplitRightApi.cs.Migrations
                         name: "FK_Groups_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Groups_Users_UserId",
                         column: x => x.UserId,
@@ -65,7 +64,8 @@ namespace SplitRightApi.cs.Migrations
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     GroupId = table.Column<int>(type: "int", nullable: false),
-                    PaidByUserId = table.Column<int>(type: "int", nullable: false)
+                    PaidByUserId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -80,8 +80,7 @@ namespace SplitRightApi.cs.Migrations
                         name: "FK_Expenses_Users_PaidByUserId",
                         column: x => x.PaidByUserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -107,8 +106,7 @@ namespace SplitRightApi.cs.Migrations
                         name: "FK_GroupMembers_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -119,8 +117,8 @@ namespace SplitRightApi.cs.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ExpenseId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsPaid = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -136,8 +134,7 @@ namespace SplitRightApi.cs.Migrations
                         name: "FK_ExpenseSplits_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(

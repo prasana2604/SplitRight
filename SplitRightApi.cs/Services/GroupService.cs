@@ -138,7 +138,7 @@ namespace SplitRightApi.cs.Services
                 throw new UnauthorizedAccessException("Only Creator can add the member");
             }
 
-            var AlreadyMember = await _context.GroupMembers.AnyAsync(e => e.GroupId == groupId && e.UserId == userId);
+            var AlreadyMember = await _context.GroupMembers.AnyAsync(e => e.GroupId == groupId && e.UserId == dto.UserId);
 
             if (AlreadyMember)
             {

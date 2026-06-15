@@ -28,7 +28,7 @@ public class AppDbContext : DbContext
         .HasOne(u => u.User)
         .WithMany(g => g.GroupMembers)
         .HasForeignKey(u => u.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<GroupMember>()
         .HasOne(g => g.Group)
@@ -46,14 +46,14 @@ public class AppDbContext : DbContext
         .HasOne(p => p.PaidBy)
         .WithMany(e => e.Expenses)
         .HasForeignKey(p => p.PaidByUserId)
-        .OnDelete(DeleteBehavior.Restrict);
+        .OnDelete(DeleteBehavior.NoAction);
 
 
         modelBuilder.Entity<ExpenseSplit>()
         .HasOne(u => u.User)
         .WithMany()
         .HasForeignKey(u => u.UserId)
-        .OnDelete(DeleteBehavior.Restrict);
+        .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<ExpenseSplit>()
         .HasOne(e => e.Expense)
@@ -65,7 +65,7 @@ public class AppDbContext : DbContext
         .HasOne(u => u.CreatedBy)
         .WithMany()
         .HasForeignKey(e => e.CreatedByUserId)
-        .OnDelete(DeleteBehavior.Restrict);
+        .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Expense>()
         .Property(a => a.Amount)
@@ -73,7 +73,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<ExpenseSplit>()
         .Property(a => a.Amount)
-        .HasColumnType("decimal(18,2");
+        .HasColumnType("decimal(18,2)");
 
 
     }

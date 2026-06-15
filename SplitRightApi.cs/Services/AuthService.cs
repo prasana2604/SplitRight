@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SplitRight.API.Data;
 using SplitRight.API.Models.Entities;
@@ -20,7 +21,7 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    public async Task<string> RegisterAsync(RegisterDto dto)
+    public async Task<String> RegisterAsync(RegisterDto dto)
     {
         var existingUser = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
@@ -41,7 +42,8 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return "User registered successfully";
+        return "User Registered Successfully";
+
     }
 
     public async Task<string> LoginAsync(LoginDto dto)
