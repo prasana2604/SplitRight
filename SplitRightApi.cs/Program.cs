@@ -5,6 +5,10 @@ using System.Text;
 using SplitRight.API.Data;
 using SplitRight.API.Services;
 using SplitRightApi.cs.Services;
+using SplitRightApi.cs.MiddleWare;
+using FluentValidation.AspNetCore;
+using SplitRightApi.cs.Validators;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +51,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<ExpenseValidator>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -56,6 +63,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
