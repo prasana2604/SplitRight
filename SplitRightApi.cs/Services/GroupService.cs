@@ -62,6 +62,7 @@ namespace SplitRightApi.cs.Services
 
         public async Task<List<GroupResponseDto>>GetMyGroupAsync(int userId) { 
 
+        
             var groups = await _context.GroupMembers.Where(e => e.UserId == userId)
                 .Include(em => em.Group)
                 .ThenInclude(e => e!.Members)

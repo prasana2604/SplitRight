@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SplitRight.API.Services;
-using SplitRightApi.cs.Models;
+using SplitRight.API.Models;
 using SplitRightApi.cs.Services;
 using System.Security.Claims;
+using SplitRight.API.Models.Entities;
 
 namespace SplitRight.API.Controllers;
 
@@ -39,9 +40,9 @@ public class ExpensesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetGroupExpenses(int groupId)
+    public async Task<IActionResult> GetGroupExpenses(int groupId, [FromQuery]ExpenseQueryDto query)
     {
-        var result = await _expenseService.GetGroupExpensesAsync(groupId, GetUserId());
+        var result = await _expenseService.GetGroupExpensesAsync(groupId, GetUserId(), query);
         return Ok(result);
     }
 
@@ -56,6 +57,13 @@ public class ExpensesController : ControllerBase
     public async Task<IActionResult> MarkAsPaid(int groupId, int id)
     {
         var result = await _expenseService.MakePaymentAsync(id, GetUserId());
+        return Ok(result);
+    }
+
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetGroupSummary(int groupId)
+    {
+        var result = await _expenseService.GroupSummaryAsync(groupId, GetUserId());
         return Ok(result);
     }
 }

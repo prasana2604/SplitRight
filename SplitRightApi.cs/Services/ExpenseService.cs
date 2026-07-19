@@ -3,13 +3,15 @@ using SplitRight.API.Services;
 using System;
 using SplitRight.API.Models.Entities;
 using SplitRight.API.Models;
-using SplitRightApi.cs.Models.Entities;
 using SplitRightApi.cs.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Identity.Client;
 using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using System.Numerics;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace SplitRightApi.cs.Services
 {
     public class ExpenseService : IExpenseService
@@ -113,7 +115,7 @@ namespace SplitRightApi.cs.Services
         }
     
 
-        public async Task<List<ExpenseResponseDto>>GetGroupExpensesAsync(int userId,int groupId)
+        public async Task<PagedResposneDto<ExpenseResponseDto>>GetGroupExpensesAsync(int userId,int groupId,ExpenseQueryDto dto)
         {
             var IsMember = await _context.GroupMembers.AnyAsync(e => e.GroupId == groupId && e.UserId == userId);
 
@@ -122,7 +124,68 @@ namespace SplitRightApi.cs.Services
                 throw new UnauthorizedAccessException("You Are Not a Member of the Group");
             }
 
-            var expense = await _context.Expenses.Where(e => e.GroupId == groupId)
+            var query = _context.Expenses.Where(e => e.GroupId == groupId)
+                .Include(e => e.Splits)
+                .AsQueryable();
+
+                //Filtering
+
+            if (!String.IsNullOrWhiteSpace(dto.Category))
+            {
+                query = query.Where(e => e.Category == dto.Category);
+            }
+
+            if (dto.MaximumAmount.HasValue)
+            {
+                query = query.Where(e => e.Amount <= dto.MaximumAmount);
+            }
+
+            if (dto.MinimumAmount.HasValue)
+
+            {
+                query = query.Where(e => e.Amount >= dto.MinimumAmount);
+            }
+
+            if (dto.From.HasValue)
+            {
+                query = query.Where(e => e.CreatedAt >= dto.From);
+            }
+            if (dto.To.HasValue)
+            {
+                query = query.Where( e => e.CreatedAt <= dto.To);
+            }
+           if((bool)dto.IsPaid.HasValue)
+            {
+                query = query.Where(e => e.Splits.Any(e => e.UserId == userId&& e.IsPaid == dto.IsPaid));
+            }
+        //Sorting
+
+        query = dto.SortBy!.ToLower() switch
+            {
+                "amount" => dto.Order == "desc" ? query.OrderByDescending(e => e.Amount) : query.OrderBy(e => e.Amount),
+
+                "category" => dto.Order == "desc" ? query.OrderByDescending(e => e.Category) : query.OrderBy(e => e.Category),
+
+                "createdat" => dto.Order == "desc" ? query.OrderByDescending(e => e.CreatedAt) : query.OrderBy(e => e.CreatedAt),
+
+                _=> query.OrderByDescending(e => e.CreatedAt ).ThenBy(e => e.Splits.Any(s => s.UserId == userId)),
+            
+    };
+
+            //TotalCount
+
+            var TotalCount = await query.CountAsync();
+
+            //Pagination
+
+            var Page = dto.Page ?? 1;
+            var PageSize = dto.PageSize ?? 1;
+
+            query = query.Skip((Page - 1) * PageSize).Take(PageSize);
+
+            //Project
+
+            var expense = await query.Where(e => e.GroupId == groupId)
                 .Include(e => e.PaidBy)
                 .Include(e => e.Splits)
                 .ThenInclude(e => e.User)
@@ -143,11 +206,17 @@ namespace SplitRightApi.cs.Services
                         IsPaid = e.IsPaid,
                     }).ToList()
 
-
                 }).ToListAsync();
 
-
-            return(expense);
+            return new PagedResposneDto<ExpenseResponseDto>
+            {
+                Data = expense,
+                Page = Page,
+                PageSize = PageSize,
+                TotalCount = TotalCount,
+                
+               
+            };
 
         }
 
@@ -233,8 +302,39 @@ namespace SplitRightApi.cs.Services
             
         }
 
-        
+        public async Task<List<GroupSummaryResponseDto>> GroupSummaryAsync(int UserId, int GroupId)
+        {
+            var IsMember = await _context.GroupMembers.AnyAsync(e => e.GroupId == GroupId && e.UserId == UserId);
+
+            if (!IsMember)
+            {
+                throw new UnauthorizedAccessException("User Is Not A Member Of This Group");
+            }
+
+            var User = await _context.Users.FindAsync(UserId);
+
+            var Summary = await _context.ExpenseSplits
+                          .Where(s => s.Expense!.GroupId == GroupId && s.IsPaid == false)
+                          .Include(s => s.User)
+                          .GroupBy(s => new { s.UserId, s.User!.Name })
+                          .Select(s => new GroupSummaryResponseDto
+                          {
+                              UserId = s.Key.UserId,
+                              UserName = s.Key.Name!,
+                              TotalOwed = s.Sum(e => e.Amount),
+                              IsPaid = false,
+
+                          }).ToListAsync();
+
+
+            return Summary;
+
+
+                          
+
+        }
 
     }
-
 }
+
+

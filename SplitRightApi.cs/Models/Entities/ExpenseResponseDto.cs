@@ -1,5 +1,6 @@
-﻿namespace SplitRightApi.cs.Models.Entities
+﻿namespace SplitRight.API.Models.Entities
 {
+
     public class ExpenseResponseDto
     {
         public int Id { get; set; }
@@ -14,6 +15,6 @@
 
         public DateTime CreatedAt { get; set; }
 
-       public List<SplitResponseDto> Splits { get; set; } = new List<SplitResponseDto>();
+        public List<SplitResponseDto> Splits { get; set; } = new List<SplitResponseDto>();
     }
 }

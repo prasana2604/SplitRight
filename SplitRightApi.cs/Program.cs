@@ -9,6 +9,7 @@ using SplitRightApi.cs.MiddleWare;
 using FluentValidation.AspNetCore;
 using SplitRightApi.cs.Validators;
 using FluentValidation;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,14 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<ExpenseValidator>();
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("log/SplitRightApi.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 

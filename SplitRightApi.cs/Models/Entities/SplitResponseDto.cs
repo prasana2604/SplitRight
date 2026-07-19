@@ -1,15 +1,14 @@
 ﻿
-namespace SplitRightApi.cs.Models.Entities
+namespace SplitRight.API.Models.Entities;
+
+public class SplitResponseDto
 {
-    public class SplitResponseDto
-    {
-        public int UserId { get; set; } 
+    public int UserId { get; set; } 
 
-        public string UserName { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
 
-        public decimal Amount { get; set; }
+    public decimal Amount { get; set; }
 
-        public bool IsPaid { get; set; }
+    public bool IsPaid { get; set; }
 
-    }
 }

@@ -2,8 +2,6 @@
 using SplitRight.API.Models;
 using SplitRight.API.Data;
 using FluentValidation;
-using SplitRightApi.cs.Models;
-using SplitRightApi.cs.Models.Entities;
 
 namespace SplitRightApi.cs.Validators
 {
