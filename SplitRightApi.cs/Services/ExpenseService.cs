@@ -12,15 +12,18 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 namespace SplitRightApi.cs.Services
 {
     public class ExpenseService : IExpenseService
     {
         private readonly AppDbContext _context;
 
-        public ExpenseService(AppDbContext context)
+        private readonly IMemoryCache _cache;
+        public ExpenseService(AppDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
         public async Task<ExpenseResponseDto> CreateExpenseAsync(int userId, int groupId, CreateExpenseDto dto)
@@ -124,9 +127,17 @@ namespace SplitRightApi.cs.Services
                 throw new UnauthorizedAccessException("You Are Not a Member of the Group");
             }
 
+            var CacheKey = $"GroupExpenses:{groupId}";
+
+            if (_cache.TryGetValue(CacheKey, out PagedResposneDto<ExpenseResponseDto>? cached))
+
+                return cached!;
+
             var query = _context.Expenses.Where(e => e.GroupId == groupId)
                 .Include(e => e.Splits)
                 .AsQueryable();
+
+           
 
                 //Filtering
 
@@ -208,6 +219,8 @@ namespace SplitRightApi.cs.Services
 
                 }).ToListAsync();
 
+            _cache.Set(CacheKey, expense,TimeSpan.FromMinutes(5));
+
             return new PagedResposneDto<ExpenseResponseDto>
             {
                 Data = expense,
@@ -236,6 +249,12 @@ namespace SplitRightApi.cs.Services
             {
                 throw new UnauthorizedAccessException("Member is a not part of the group");
             }
+
+            var CacheKey = $"expense:{ExpenseId}";
+
+            if (_cache.TryGetValue(CacheKey, out ExpenseResponseDto? cached))
+                return cached!;
+
             var expenses = await _context.Expenses.Where(e => e.Id == ExpenseId)
                 .Include(e => e.PaidBy)
                 .Include(e => e.Splits)
@@ -259,7 +278,10 @@ namespace SplitRightApi.cs.Services
                     }).ToList()
                 }).SingleOrDefaultAsync();
 
+            _cache.Set(CacheKey, expenses, TimeSpan.FromMinutes(5));
+
             return expenses!;
+
             
         }
 
@@ -313,6 +335,14 @@ namespace SplitRightApi.cs.Services
 
             var User = await _context.Users.FindAsync(UserId);
 
+            var CacheKey = $"group-summary-{GroupId}";
+
+            
+
+            if (_cache.TryGetValue(CacheKey, out  List<GroupSummaryResponseDto>? cached ))
+
+                return cached!;
+          
             var Summary = await _context.ExpenseSplits
                           .Where(s => s.Expense!.GroupId == GroupId && s.IsPaid == false)
                           .Include(s => s.User)
@@ -326,6 +356,8 @@ namespace SplitRightApi.cs.Services
 
                           }).ToListAsync();
 
+            _cache.Set(CacheKey, Summary, TimeSpan.FromMinutes(10));
+            
 
             return Summary;
 
